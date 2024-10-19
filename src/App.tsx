@@ -21,6 +21,7 @@ export const App: React.FC = () => {
     loadingTodoIds,
     errorMessage,
     setErrorMessage,
+    handleAddError,
     addTodo,
     deleteTodo,
     deleteCompletedTodo,
@@ -40,7 +41,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoForm
           onSubmit={addTodo}
-          onSetError={setErrorMessage}
+          onSetError={handleAddError}
           areAllCompleted={areAllCompleted(todos)}
           isLoading={Boolean(loadingTodoIds.length)}
           todos={todos}
@@ -69,7 +70,10 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <Error errorMessage={errorMessage} onChangeError={setErrorMessage} />
+      <Error
+        errorMessage={errorMessage}
+        onResetError={() => setErrorMessage('')}
+      />
     </div>
   );
 };

@@ -1,26 +1,24 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Todo } from '../types/Todo';
 import * as todosService from '../api/todos';
-import { useError } from './useError';
 import { getCompletedTodos } from '../utils/getCompletedTodos';
 import { FilterType } from '../types/FilterType';
 import { filterTodos } from '../utils/filterTodos';
+import debounce from 'lodash.debounce';
 
 export const useTodos = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filter, setFilter] = useState<FilterType>('All');
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
-  const { errorMessage, setErrorMessage } = useError();
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const loadTodos = () => {
-    todosService
-      .getTodos()
-      .then(setTodos)
-      .catch(() => setErrorMessage('Unable to load todos'));
+  const setErrorDebounced = useCallback(debounce(setErrorMessage, 3000), []);
+
+  const handleAddError = (error: string) => {
+    setErrorMessage(error);
+    setErrorDebounced('');
   };
-
-  useEffect(loadTodos, []);
 
   const addTodo = (newTodo: Omit<Todo, 'id'>) => {
     const newTempTodo = { ...newTodo, id: 0 };
@@ -34,7 +32,7 @@ export const useTodos = () => {
         setTodos(currentTodos => [...currentTodos, todo]);
       })
       .catch((error: Error) => {
-        setErrorMessage('Unable to add a todo');
+        handleAddError('Unable to add a todo');
 
         throw error;
       })
@@ -55,7 +53,7 @@ export const useTodos = () => {
         setTodos(current => current.filter(todo => todo.id !== todoId)),
       )
       .catch((error: Error) => {
-        setErrorMessage('Unable to delete a todo');
+        handleAddError('Unable to delete a todo');
 
         throw error;
       })
@@ -77,12 +75,22 @@ export const useTodos = () => {
     [todos, filter],
   );
 
+  const loadTodos = () => {
+    todosService
+      .getTodos()
+      .then(setTodos)
+      .catch(() => handleAddError('Unable to load todos'));
+  };
+
+  useEffect(loadTodos, []);
+
   return {
     todos,
     tempTodo,
     loadingTodoIds,
     errorMessage,
     setErrorMessage,
+    handleAddError,
     addTodo,
     deleteTodo,
     deleteCompletedTodo,

@@ -1,12 +1,12 @@
-import { Dispatch, FC, SetStateAction } from 'react';
+import { FC } from 'react';
 import cn from 'classnames';
 
 type Props = {
   errorMessage: string;
-  onChangeError: Dispatch<SetStateAction<string>>;
+  onResetError: () => void;
 };
 
-export const Error: FC<Props> = ({ errorMessage, onChangeError }) => {
+export const Error: FC<Props> = ({ errorMessage, onResetError }) => {
   return (
     <div
       data-cy="ErrorNotification"
@@ -18,7 +18,7 @@ export const Error: FC<Props> = ({ errorMessage, onChangeError }) => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => onChangeError('')}
+        onClick={onResetError}
       />
       {errorMessage}
     </div>
