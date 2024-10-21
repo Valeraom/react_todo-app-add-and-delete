@@ -1,13 +1,14 @@
 import { FC, useState } from 'react';
 import cn from 'classnames';
 
-import { Todo } from '../types/Todo';
-import { Loader } from './Loader';
+import { Todo } from '../types';
+import { Loader } from './index';
 
 type Props = {
   todo: Todo;
   loadingTodoIds: number[];
   onDelete?: (todoId: number) => Promise<void>;
+  onUpdate?: (updatedTodo: Todo) => Promise<void>;
 };
 
 export const TodoInfo: FC<Props> = ({
@@ -16,7 +17,9 @@ export const TodoInfo: FC<Props> = ({
   onDelete = () => {},
 }) => {
   const { id, title, completed } = todo;
+
   const [isEditing, setIsEditing] = useState(false);
+  const [updatedTitle, setUpdatedTitle] = useState(title);
 
   const isLoading = loadingTodoIds.includes(id);
 
@@ -36,11 +39,15 @@ export const TodoInfo: FC<Props> = ({
         {isEditing ? (
           <form>
             <input
+              autoFocus
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              value="Todo is being edited now"
+              value={updatedTitle}
+              onChange={event =>
+                setUpdatedTitle(event.target.value.trimStart())
+              }
             />
           </form>
         ) : (

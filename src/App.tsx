@@ -3,16 +3,11 @@
 import React from 'react';
 
 import { UserWarning } from './UserWarning';
-import { USER_ID } from './api/todos';
-import { TodoList } from './components/TodoList';
-import { TodoForm } from './components/TodoForm';
-import { Footer } from './components/Footer';
-import { countActiveTodos } from './utils/countActiveTodos';
-import { areAllCompleted } from './utils/areAllCompleted';
-import { areAllActive } from './utils/areAllActive';
-import { Error } from './components/Error';
-import { TodoInfo } from './components/TodoInfo';
+import { TodoForm, TodoList, TodoInfo, Footer, Error } from './components';
+import { areAllActive, areAllCompleted, countActiveTodos } from './utils';
 import { useTodos } from './hooks/useTodos';
+import { USER_ID } from './constants';
+import { ErrorType } from './types';
 
 export const App: React.FC = () => {
   const {
@@ -43,12 +38,12 @@ export const App: React.FC = () => {
           onSubmit={addTodo}
           onSetError={handleAddError}
           areAllCompleted={areAllCompleted(todos)}
-          isLoading={Boolean(loadingTodoIds.length)}
+          isLoading={!!loadingTodoIds.length}
           todos={todos}
           errorMessage={errorMessage}
         />
 
-        {(Boolean(todos.length) || tempTodo) && (
+        {(!!todos.length || tempTodo) && (
           <>
             <TodoList
               todos={filteredTodos}
@@ -72,7 +67,7 @@ export const App: React.FC = () => {
 
       <Error
         errorMessage={errorMessage}
-        onResetError={() => setErrorMessage('')}
+        onResetError={() => setErrorMessage(ErrorType.None)}
       />
     </div>
   );

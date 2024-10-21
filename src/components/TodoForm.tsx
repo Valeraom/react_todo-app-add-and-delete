@@ -1,16 +1,16 @@
 import { ChangeEvent, FC, FormEvent, useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 
-import { Todo } from '../types/Todo';
-import { USER_ID } from '../api/todos';
+import { ErrorType, Todo } from '../types';
+import { USER_ID } from '../constants';
 
 type Props = {
   onSubmit: (newTodo: Omit<Todo, 'id'>) => Promise<void>;
-  onSetError: (error: string) => void;
+  onSetError: (error: ErrorType) => void;
   areAllCompleted: boolean;
   isLoading: boolean;
   todos: Todo[];
-  errorMessage: string;
+  errorMessage: ErrorType;
 };
 
 export const TodoForm: FC<Props> = ({
@@ -31,10 +31,8 @@ export const TodoForm: FC<Props> = ({
     }
   };
 
-  useEffect(handleFocus, [todos, errorMessage]);
-
   const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onSetError('');
+    onSetError(ErrorType.None);
 
     setTodoTitle(event.target.value.trimStart());
   };
@@ -43,12 +41,12 @@ export const TodoForm: FC<Props> = ({
     event.preventDefault();
 
     if (!todoTitle.length) {
-      onSetError('Title should not be empty');
+      onSetError(ErrorType.Validation);
 
       return;
     }
 
-    onSetError('');
+    onSetError(ErrorType.None);
 
     const newTodo = {
       completed: false,
@@ -61,13 +59,17 @@ export const TodoForm: FC<Props> = ({
       .finally(handleFocus);
   };
 
+  useEffect(handleFocus, [todos, errorMessage]);
+
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', { active: areAllCompleted })}
-        data-cy="ToggleAllButton"
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', { active: areAllCompleted })}
+          data-cy="ToggleAllButton"
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

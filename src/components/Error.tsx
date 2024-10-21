@@ -1,8 +1,9 @@
 import { FC } from 'react';
 import cn from 'classnames';
+import { ErrorType } from '../types';
 
 type Props = {
-  errorMessage: string;
+  errorMessage: ErrorType;
   onResetError: () => void;
 };
 
